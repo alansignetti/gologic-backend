@@ -1,0 +1,28 @@
+{
+  "name": "gologic-backend",
+  "version": "1.0.0",
+  "description": "Backend GoLogic",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alansignetti/gologic-backend.git"
+  },
+  "author": "Alan Signetti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alansignetti/gologic-backend/issues"
+  },
+  "homepage": "https://github.com/alansignetti/gologic-backend",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.3",
+    "moment": "^2.30.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
