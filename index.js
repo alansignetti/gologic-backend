@@ -98,9 +98,9 @@ app.get("/api/rooms/:id", async (req, res) => {
 
 app.post("/api/createBooking", async (req, res) => {
   console.log("req.body:", req.body);
-  const { roomId, email, checkinDate, checkoutDate, guests } = req.body;
+  const { roomId, email, checkinDate, checkoutDate, guestCount } = req.body;
 
-  if (!roomId || !email || !checkinDate || !checkoutDate || !guests) {
+  if (!roomId || !email || !checkinDate || !checkoutDate || !guestCount) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
@@ -115,22 +115,21 @@ app.post("/api/createBooking", async (req, res) => {
 
   const roomBD = await Room.find();
   const bookings = await Booking.find().populate("room");
-  const availableRooms = roomBD.filter((room) => {
-    return (
-      !bookings.some((booking) => {
-        const bookingCheckIn = moment(booking.checkinDate);
-        const bookingCheckout = moment(booking.checkoutDate);
+  const bookedRoom = roomBD.filter((room) => {
+    // return booked room for those dates, tiene que chequear si ya existe una reserva para esa habitacion, para la misma fecha o si el checkin esta dentro de la fecha de checkin o checkout
+    return bookings.some((booking) => {
+      const bookingCheckIn = moment(booking.checkinDate);
+      const bookingCheckout = moment(booking.checkoutDate);
 
-        return (
-          booking.room.id === room.id &&
-          parsedStartDate.isBefore(bookingCheckout) &&
-          parsedEndDate.isAfter(bookingCheckIn)
-        );
-      }) && room.capacity >= guests
-    );
+      return (
+        (parsedStartDate.isBetween(bookingCheckIn, bookingCheckout) ||
+          parsedEndDate.isBetween(bookingCheckIn, bookingCheckout)) &&
+        booking.room.id === roomId
+      );
+    });
   });
 
-  if (!availableRooms) {
+  if (bookedRoom.length > 0) {
     return res
       .status(409)
       .json({ message: "Room already booked for those dates" });
@@ -139,7 +138,7 @@ app.post("/api/createBooking", async (req, res) => {
   // Get room capacity directly from database
   const room = roomBD.find((room) => room.id === roomId);
 
-  if (!room || room.capacity < guests) {
+  if (!room || room.capacity < guestCount) {
     return res.status(400).json({ message: "Insufficient room capacity" });
   }
 
@@ -150,7 +149,7 @@ app.post("/api/createBooking", async (req, res) => {
     email,
     checkinDate,
     checkoutDate,
-    guests,
+    guestCount,
   });
 
   try {
