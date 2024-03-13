@@ -30,8 +30,7 @@ app.get("/", async (req, res) => {
 });
 
 app.get("/api/rooms", async (req, res) => {
-  // const rooms = await Room.find();
-  // console.log("rooms:", rooms);
+  const rooms = await Room.find();
 
   res.json("adiso");
 });
