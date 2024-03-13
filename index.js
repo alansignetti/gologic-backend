@@ -28,6 +28,13 @@ app.get("/", async (req, res) => {
   res.json("Bakend GoLogic ");
 });
 
+app.get("/rooms", async (req, res) => {
+  const rooms = await Room.find();
+  // console.log("rooms:", rooms);
+
+  res.send(rooms);
+});
+
 app.get("/rooms/available", async (req, res) => {
   const { checkInDate, checkOutDate, guestCount } = req.query;
   const rooms = await Room.find();
@@ -64,13 +71,6 @@ app.get("/rooms/available", async (req, res) => {
   });
 
   res.json(availableRooms);
-});
-
-app.get("/rooms", async (req, res) => {
-  // const rooms = await Room.find();
-  // console.log("rooms:", rooms);
-
-  res.json("hola");
 });
 
 app.get("/rooms/:id", async (req, res) => {
