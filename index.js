@@ -6,7 +6,8 @@ const db = require("./db");
 const Booking = require("./bookingsModel");
 const Room = require("./roomModel");
 app.use(bodyParser.json());
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {});
 
 // CORS middleware
 function setCommonHeaders(req, res, next) {
@@ -162,5 +163,3 @@ app.post("/api/createBooking", async (req, res) => {
     res.status(400).json({ message: "Error creating booking" });
   }
 });
-
-app.listen(port, () => {});
