@@ -22,7 +22,7 @@ function setCommonHeaders(req, res, next) {
 app.use(setCommonHeaders);
 // CORS
 
-app.get("/api", (req, res) => {
+app.get("/", (req, res) => {
   res.json("hola");
 });
 // app.get("/api", async (req, res) => {
