@@ -9,6 +9,7 @@ app.use(bodyParser.json());
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {});
 app.use(bodyParser.urlencoded({ extended: true }));
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 // CORS middleware
 function setCommonHeaders(req, res, next) {
@@ -28,7 +29,12 @@ app.use(setCommonHeaders);
 app.get("/", async (req, res) => {
   res.json("Bakend GoLogic ");
 });
+// esta funciona
+app.get("/api/rooms", async (req, res) => {
+  res.json("hola");
+});
 
+//esta tira error 504 Gateway Timeout
 app.get("/api/rooms", async (req, res) => {
   try {
     const rooms = await Room.find();
