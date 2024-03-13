@@ -30,9 +30,13 @@ app.get("/", async (req, res) => {
 });
 
 app.get("/api/rooms", async (req, res) => {
-  const rooms = await Room.find();
-
-  res.json("adiso");
+  try {
+    const rooms = await Room.find();
+    res.json(rooms);
+  } catch (error) {
+    console.error("Error fetching rooms:", error);
+    res.status(500).json({ message: "Error retrieving rooms" });
+  }
 });
 
 // app.get("/api/rooms/available", async (req, res) => {
