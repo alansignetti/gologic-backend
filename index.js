@@ -1,8 +1,11 @@
 const express = require("express");
 const moment = require("moment");
-
-const { rooms, mockBookingRequest } = require("./data");
+const bodyParser = require("body-parser");
 const app = express();
+const db = require("./db");
+const Booking = require("./bookingsModel");
+const Room = require("./roomModel");
+app.use(bodyParser.json());
 
 // CORS middleware
 function setCommonHeaders(req, res, next) {
@@ -12,14 +15,21 @@ function setCommonHeaders(req, res, next) {
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS, PUT, DELETE"
   );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   next();
 }
-
 app.use(setCommonHeaders);
 // CORS
 
+app.get("/api", async (req, res) => {
+  const bookings = await Booking.find({}).populate("room"); // Include populated room data
+
+  res.json(bookings);
+});
+
 app.get("/api/rooms/available", async (req, res) => {
-  const { checkInDate, checkOutDate } = req.query; // Access query parameters
+  const { checkInDate, checkOutDate, guestCount } = req.query;
+  const rooms = await Room.find();
 
   if (!checkInDate || !checkOutDate) {
     res.json(rooms);
@@ -27,7 +37,7 @@ app.get("/api/rooms/available", async (req, res) => {
     return;
   }
 
-  const parsedStartDate = moment(checkInDate); // Specify format
+  const parsedStartDate = moment(checkInDate);
   const parsedEndDate = moment(checkOutDate);
 
   if (parsedStartDate.isAfter(parsedEndDate)) {
@@ -35,35 +45,32 @@ app.get("/api/rooms/available", async (req, res) => {
       .status(400)
       .json({ message: "Start date must be before end date" });
   }
-  console.log("parsedStartDate:" + parsedStartDate.format("YYYY-MM-DD"));
 
-  // Filter bookings based on dates to find available rooms
-  const bookings = mockBookingRequest;
+  const bookings = await Booking.find().populate("room");
   const availableRooms = rooms.filter((room) => {
-    // Check for any overlapping bookings for this room
-    return !bookings.some((booking) => {
-      const bookingCheckIn = moment(booking.checkinDate);
-      const bookingCheckout = moment(booking.checkoutDate);
-      console.log("bookingCheckIn:" + bookingCheckIn.format("YYYY-MM-DD"));
-      return (
-        // Any overlap between requested dates and existing booking dates:
-        (booking.room.id === room.id &&
-          parsedStartDate.isSameOrBefore(bookingCheckout) &&
-          parsedEndDate.isSameOrAfter(bookingCheckIn)) ||
-        (booking.room.id === room.id &&
-          parsedStartDate.isSameOrAfter(bookingCheckIn) &&
-          parsedStartDate.isSameOrBefore(bookingCheckout)) ||
-        (booking.room.id === room.id &&
-          parsedEndDate.isSameOrAfter(bookingCheckIn) &&
-          parsedEndDate.isSameOrBefore(bookingCheckout))
-      );
-    });
+    return (
+      !bookings.some((booking) => {
+        const bookingCheckIn = moment(booking.checkinDate);
+        const bookingCheckout = moment(booking.checkoutDate);
+
+        return (
+          booking.room.id === room.id &&
+          parsedStartDate.isBefore(bookingCheckout) &&
+          parsedEndDate.isAfter(bookingCheckIn)
+        );
+      }) && room.capacity >= guestCount // Check capacity after availability check
+    );
   });
 
   res.json(availableRooms);
 });
 
-app.get("/api/rooms/:id", (req, res) => {
+app.get("/api/rooms", async (req, res) => {
+  const rooms = await Room.find();
+  res.json(rooms);
+});
+
+app.get("/api/rooms/:id", async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins (for development)
   res.setHeader("Content-Type", "application/json");
   res.setHeader(
@@ -71,7 +78,8 @@ app.get("/api/rooms/:id", (req, res) => {
     "GET, POST, OPTIONS, PUT, DELETE"
   );
   const roomId = parseInt(req.params.id);
-  const room = rooms.find((room) => room.id === roomId);
+  const roomBD = await Room.find();
+  const room = roomBD.find((room) => room.id === roomId);
 
   if (room) {
     res.json(room);
@@ -80,37 +88,71 @@ app.get("/api/rooms/:id", (req, res) => {
   }
 });
 
-app.post("/api/bookings", async (req, res) => {
-  const { roomId, checkinDate, checkoutDate, guests } = req.body;
+app.post("/api/createBooking", async (req, res) => {
+  console.log("req.body:", req.body);
+  const { roomId, email, checkinDate, checkoutDate, guests } = req.body;
 
-  // Validation (replace with more robust checks)
-  if (!roomId || !checkinDate || !checkoutDate || !guests) {
+  if (!roomId || !email || !checkinDate || !checkoutDate || !guests) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
-  if (isRoomAvailable(roomId, checkinDate, checkoutDate)) {
-    if (rooms[roomId - 1].capacity >= guests) {
-      // Create booking logic (replace with database persistence)
-      const booking = {
-        id: Math.random(), // Generate a unique identifier
-        room: rooms[roomId - 1],
-        checkinDate,
-        checkoutDate,
-        guests,
-      };
-      // ... persist booking data (e.g., save to database)
+  const parsedStartDate = moment(checkinDate);
+  const parsedEndDate = moment(checkoutDate);
 
-      return res.status(201).json(booking);
-    } else {
-      return res.status(400).json({ message: "Insufficient room capacity" });
-    }
-  } else {
+  if (parsedStartDate.isAfter(parsedEndDate)) {
+    return res
+      .status(400)
+      .json({ message: "Start date must be before end date" });
+  }
+
+  const roomBD = await Room.find();
+  const bookings = await Booking.find().populate("room");
+  const availableRooms = roomBD.filter((room) => {
+    return (
+      !bookings.some((booking) => {
+        const bookingCheckIn = moment(booking.checkinDate);
+        const bookingCheckout = moment(booking.checkoutDate);
+
+        return (
+          booking.room.id === room.id &&
+          parsedStartDate.isBefore(bookingCheckout) &&
+          parsedEndDate.isAfter(bookingCheckIn)
+        );
+      }) && room.capacity >= guests
+    );
+  });
+
+  if (!availableRooms) {
     return res
       .status(409)
-      .json({ message: "Room unavailable for those dates" });
+      .json({ message: "Room already booked for those dates" });
   }
-});
 
-app.listen(3000, () => {
-  console.log("Servidor escuchando en el puerto 3000");
+  // Get room capacity directly from database
+  const room = roomBD.find((room) => room.id === roomId);
+
+  if (!room || room.capacity < guests) {
+    return res.status(400).json({ message: "Insufficient room capacity" });
+  }
+
+  // Create and persist booking in database
+  const newBooking = new Booking({
+    bookingRequest: Date.now(),
+    room,
+    email,
+    checkinDate,
+    checkoutDate,
+    guests,
+  });
+
+  try {
+    await newBooking.save(); // Save to database
+    res.status(201).json({
+      message: "Booking created successfully",
+      bookingId: newBooking.id,
+    });
+  } catch (error) {
+    console.error("Error saving booking to database:", error);
+    res.status(400).json({ message: "Error creating booking" });
+  }
 });
