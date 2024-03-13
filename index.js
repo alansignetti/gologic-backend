@@ -67,10 +67,10 @@ app.get("/rooms/available", async (req, res) => {
 });
 
 app.get("/rooms", async (req, res) => {
-  const rooms = await Room.find();
-  console.log("rooms:", rooms);
+  // const rooms = await Room.find();
+  // console.log("rooms:", rooms);
 
-  res.json(rooms);
+  res.json("hola");
 });
 
 app.get("/rooms/:id", async (req, res) => {
