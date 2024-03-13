@@ -28,8 +28,8 @@ app.get("/", async (req, res) => {
   res.json("Bakend GoLogic ");
 });
 
-app.get("/rooms", async (req, res) => {
-  const rooms = await Room.find();
+app.get("/rooms", (req, res) => {
+  const rooms = Room.find();
   // console.log("rooms:", rooms);
 
   res.send(rooms);
