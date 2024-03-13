@@ -115,14 +115,9 @@ app.post("/api/createBooking", async (req, res) => {
   const roomBD = await Room.find();
   const bookings = await Booking.find().populate("room");
   const bookedRoom = roomBD.filter((room) => {
-    // return booked room for those dates, tiene que chequear si ya existe una reserva para esa habitacion, para la misma fecha o si el checkin esta dentro de la fecha de checkin o checkout
     return bookings.some((booking) => {
       const bookingCheckIn = moment(booking.checkinDate);
       const bookingCheckout = moment(booking.checkoutDate);
-      // si para esa room ya hay un booking en el q el parsedStartDate está dentro de bookingCheckIn y bookingCheckout, devuelve si ya está bookeada
-
-      // si la fecha coincide con una reserva ya existente
-
       return (
         (parsedStartDate.isBetween(bookingCheckIn, bookingCheckout) ||
           parsedEndDate.isBetween(bookingCheckIn, bookingCheckout)) &&
@@ -130,8 +125,9 @@ app.post("/api/createBooking", async (req, res) => {
       );
     }); // Check capacity after availability check
   });
+  const bookingsSearched = Booking.find().populate("room");
 
-  if (bookings && bookedRoom.length > 0) {
+  if (bookingsSearched && bookedRoom.length > 0) {
     return res
       .status(409)
       .json({ message: "Room already booked for those dates" });
