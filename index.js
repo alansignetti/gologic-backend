@@ -9,9 +9,6 @@ app.use(bodyParser.json());
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {});
 app.use(bodyParser.urlencoded({ extended: true }));
-app.options("*", (req, res) => {
-  res.status(200).end();
-});
 
 // CORS middleware
 function setCommonHeaders(req, res, next) {
@@ -32,7 +29,21 @@ app.get("/", async (req, res) => {
   res.json("Bakend GoLogic ");
 });
 
-app.get("/api/rooms", async (req, res) => {
+app.get("api/", async (req, res) => {
+  const rooms = await Room.find();
+  // console.log("rooms:", rooms);
+
+  res.json(rooms);
+});
+
+app.get("api", async (req, res) => {
+  const rooms = await Room.find();
+  // console.log("rooms:", rooms);
+
+  res.json(rooms);
+});
+
+app.get("/api/", async (req, res) => {
   const rooms = await Room.find();
   // console.log("rooms:", rooms);
 
