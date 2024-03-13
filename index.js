@@ -8,6 +8,10 @@ const Room = require("./roomModel");
 app.use(bodyParser.json());
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {});
+app.use(bodyParser.urlencoded({ extended: true }));
+app.options("*", (req, res) => {
+  res.status(200).end();
+});
 
 // CORS middleware
 function setCommonHeaders(req, res, next) {
