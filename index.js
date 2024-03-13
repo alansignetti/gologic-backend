@@ -20,15 +20,11 @@ function setCommonHeaders(req, res, next) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   next();
 }
+
 app.use(setCommonHeaders);
 // CORS
 
 app.get("/api", async (req, res) => {
-  const bookings = await Booking.find({}).populate("room"); // Include populated room data
-  res.json(bookings);
-});
-
-app.get("/", (req, res) => {
   res.json("Bakend GoLogic ");
 });
 
