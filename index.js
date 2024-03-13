@@ -29,17 +29,11 @@ app.get("/", async (req, res) => {
   res.json("Bakend GoLogic ");
 });
 
-app.get("/api", async (req, res) => {
+app.get("/api/rooms", async (req, res) => {
   // const rooms = await Room.find();
   // console.log("rooms:", rooms);
 
-  res.json("hola");
-});
-app.get("/api/", async (req, res) => {
-  // const rooms = await Room.find();
-  // console.log("rooms:", rooms);
-
-  res.json("adios");
+  res.json("adiso");
 });
 
 // app.get("/api/rooms/available", async (req, res) => {
