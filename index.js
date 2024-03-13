@@ -28,7 +28,7 @@ app.get("/", async (req, res) => {
   res.json("Bakend GoLogic ");
 });
 
-app.get("/api/rooms/available", async (req, res) => {
+app.get("/rooms/available", async (req, res) => {
   const { checkInDate, checkOutDate, guestCount } = req.query;
   const rooms = await Room.find();
 
@@ -66,14 +66,14 @@ app.get("/api/rooms/available", async (req, res) => {
   res.json(availableRooms);
 });
 
-app.get("/api/rooms", async (req, res) => {
+app.get("/rooms", async (req, res) => {
   const rooms = await Room.find();
   console.log("rooms:", rooms);
 
   res.json(rooms);
 });
 
-app.get("/api/rooms/:id", async (req, res) => {
+app.get("/rooms/:id", async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins (for development)
   res.setHeader("Content-Type", "application/json");
   res.setHeader(
@@ -91,7 +91,7 @@ app.get("/api/rooms/:id", async (req, res) => {
   }
 });
 
-app.post("/api/createBooking", async (req, res) => {
+app.post("/createBooking", async (req, res) => {
   console.log("req.body:", req.body);
   const { roomId, email, checkinDate, checkoutDate, guests } = req.body;
 
