@@ -28,7 +28,7 @@ app.get("/", async (req, res) => {
   res.json("Bakend GoLogic ");
 });
 
-app.get("/rooms", (req, res) => {
+app.get("/rooms", async (req, res) => {
   const rooms = Room.find();
   // console.log("rooms:", rooms);
 
