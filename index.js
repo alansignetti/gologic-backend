@@ -23,7 +23,6 @@ app.use(setCommonHeaders);
 
 app.get("/api", async (req, res) => {
   const bookings = await Booking.find({}).populate("room"); // Include populated room data
-
   res.json(bookings);
 });
 
@@ -67,6 +66,8 @@ app.get("/api/rooms/available", async (req, res) => {
 
 app.get("/api/rooms", async (req, res) => {
   const rooms = await Room.find();
+  console.log("rooms:", rooms);
+
   res.json(rooms);
 });
 
@@ -156,3 +157,5 @@ app.post("/api/createBooking", async (req, res) => {
     res.status(400).json({ message: "Error creating booking" });
   }
 });
+
+app.listen(3000, () => {});
