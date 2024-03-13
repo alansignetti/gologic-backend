@@ -23,7 +23,7 @@ app.use(setCommonHeaders);
 // CORS
 
 app.get("/", (req, res) => {
-  res.json("Bakend GoLogic");
+  res.json("Bakend GoLogic ");
 });
 app.get("/api", async (req, res) => {
   const bookings = await Booking.find({}).populate("room"); // Include populated room data
