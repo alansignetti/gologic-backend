@@ -22,10 +22,13 @@ function setCommonHeaders(req, res, next) {
 app.use(setCommonHeaders);
 // CORS
 
-app.get("/api", async (req, res) => {
-  const bookings = await Booking.find({}).populate("room"); // Include populated room data
-  res.json(bookings);
+app.get("/api", (req, res) => {
+  res.json("hola");
 });
+// app.get("/api", async (req, res) => {
+//   const bookings = await Booking.find({}).populate("room"); // Include populated room data
+//   res.json(bookings);
+// });
 
 // app.get("/api/rooms/available", async (req, res) => {
 //   const { checkInDate, checkOutDate, guestCount } = req.query;
