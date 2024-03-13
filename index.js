@@ -32,7 +32,7 @@ app.get("/rooms", async (req, res) => {
   const rooms = Room.find();
   // console.log("rooms:", rooms);
 
-  res.send(rooms);
+  res.json(rooms);
 });
 
 app.get("/rooms/available", async (req, res) => {
