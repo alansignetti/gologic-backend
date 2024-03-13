@@ -24,7 +24,7 @@ function setCommonHeaders(req, res, next) {
 app.use(setCommonHeaders);
 // CORS
 
-app.get("/api", async (req, res) => {
+app.get("/", async (req, res) => {
   res.json("Bakend GoLogic ");
 });
 
