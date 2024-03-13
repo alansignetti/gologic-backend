@@ -97,7 +97,6 @@ app.get("/api/rooms/:id", async (req, res) => {
 });
 
 app.post("/api/createBooking", async (req, res) => {
-  console.log("req.body:", req.body);
   const { roomId, email, checkinDate, checkoutDate, guestCount } = req.body;
 
   if (!roomId || !email || !checkinDate || !checkoutDate || !guestCount) {
@@ -120,13 +119,16 @@ app.post("/api/createBooking", async (req, res) => {
     return bookings.some((booking) => {
       const bookingCheckIn = moment(booking.checkinDate);
       const bookingCheckout = moment(booking.checkoutDate);
+      // si para esa room ya hay un booking en el q el parsedStartDate está dentro de bookingCheckIn y bookingCheckout, devuelve si ya está bookeada
+
+      // si la fecha coincide con una reserva ya existente
 
       return (
         (parsedStartDate.isBetween(bookingCheckIn, bookingCheckout) ||
           parsedEndDate.isBetween(bookingCheckIn, bookingCheckout)) &&
         booking.room.id === roomId
       );
-    });
+    }); // Check capacity after availability check
   });
 
   if (bookedRoom.length > 0) {
