@@ -125,9 +125,8 @@ app.post("/api/createBooking", async (req, res) => {
       );
     }); // Check capacity after availability check
   });
-  const bookingsSearched = Booking.find().populate("room");
 
-  if (bookingsSearched && bookedRoom.length > 0) {
+  if (bookedRoom.length > 0) {
     return res
       .status(409)
       .json({ message: "Room already booked for those dates" });
