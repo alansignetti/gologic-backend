@@ -29,12 +29,7 @@ app.use(setCommonHeaders);
 app.get("/", async (req, res) => {
   res.json("Bakend GoLogic ");
 });
-// esta funciona
-app.get("/api/rooms", async (req, res) => {
-  res.json("hola");
-});
 
-//esta tira error 504 Gateway Timeout
 app.get("/api/rooms", async (req, res) => {
   try {
     const rooms = await Room.find();
